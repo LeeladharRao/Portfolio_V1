@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+
+{% block title %} Leeladhar Rao {% endblock %}
+
+{% block body %}
+
+<div id="main" class="clearfix">
+	<div id="content" class="clearfix">
+		<div class="home">
+			<div id="pageHead">
+				<div id="homeMessage" class="clearfix page">
+					<p> Hi, I&rsquo;m Leeladhar, a software engineer who loves to fiddle with software.
+						You can read more <a href="{{ url_for('about') }}">about me</a>, have a look at a few <a
+							href="{{ url_for('about') }}">things I&rsquo;ve built</a>, you can also scroll down for recent articles,
+						or browse my <a href="archives.html">Blog</a>.
+						<br><br> If you too love programming or just want to talk about nerdy things, hit me up on my socials.
+					</p>
+				</div>
+			</div>
+
+			<!-- post articles here -->
+
+			<div id="recent" class="extraBox">
+				<h3 class="accent-header">Recent Articles</h3>
+				<ul class="post-list">
+					<li class="post category-Tips &amp; Tutorials ">
+						<div class="inside">
+
+							<p>No articles have been posted by the author.</p>
+
+						</div>
+					</li>
+
+				</ul>
+			</div>
+			<!-- End of articles-->
+
+		</div>
+	</div>
+</div>
+
+{% endblock %}

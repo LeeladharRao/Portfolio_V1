@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        {% block head %}
+        <meta charset="utf-8">
+    
+        <title>{% block title %} {% endblock %}</title>
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/css-main.css') }}">
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Droid+Sans:regular,italic,bold,bolditalic">
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic">
+        <meta name="msapplication-TileColor" content="#FFFFFF">
+    
+        {% endblock %}
+    </head>
+
+    <body class="default">
+        <div id="container" class="clearfix">
+        <header id="header">
+            <div class="inside clearfix">
+
+            <div id="logo">
+                <h1 class="logo">
+                    <a href="{{ url_for('home') }}"><img src="static/images/img-logo.png"></a>
+                </h1>
+            </div>
+
+            <nav id="mainNav" class="clearfix">
+                <ul>
+                <li class="menu-item current"><a href="{{ url_for('home') }}">Home</a></li>
+                <li class="menu-item "><a href="{{ url_for('about') }}">About</a></li>
+                <li class="menu-item "><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+                <li class="menu-item "><a href="{{ url_for('blog') }}">Blog Posts</a></li>
+                </ul>
+            </nav>
+
+            <div class="sidebar_box">
+                <h3 class="accent-header">About</h3>
+                <p></p>
+                <p>Hey, I'm Leela! I'm a software engineer from India. This is my place on the web that I've created to show the world.</p>
+
+            </div>
+        
+            <div class="sidebar_box">
+                <div class="flare-follow">
+                    <a href="https://www.facebook.com" target="_blank"><img src="static/images/img-facebook.png"></a>
+                    <a href="http://www.twitter.com" target="_blank"><img src="static/images/img-twitter.png"></a>
+                    <a href="https://www.github.com" target="_blank"><img src="static/images/img-github.png"></a>
+                    <a href="#" target="_blank"><img src="static/images/img-gmail.png"></a> 
+                    
+                </div>
+            </div>
+
+        </header>
+
+        {% block body %}
+        {% endblock %}
+
+        <footer id="footer" class="site-footer">
+            <div class="secondary clearfix">
+                <div class="right">
+                    <p>&copy; 2020-2021 written with love</p>
+                </div>
+            </div>
+        </footer>
+        
+    </body>
+
+</html>
