@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+
+{% block title %} BlogPage | Leeladhar Rao {% endblock %}
+
+{% block body %}
+
+
+<div id="main" class="clearfix">
+	<div id="content" class="clearfix">
+		<div id="post-section" class="post">
+
+			<header class="post-header">
+				<h1 class="post-title">Deploy with &lsquo;Git Push&rsquo;</h1>
+				<p class="post-meta top"> <i>by</i><a href="about.html">Leeladhar Rao</a> </p>
+			</header>
+
+			<article class="post-content">
+				<p>Single command deploys are awesome. When setting up a testing or production server, I always setup a script
+					to deploy in a single command because it makes life easier and encourages frequent deploys.
+					<!--more-->
+				</p>
+
+				<p>There are many different ways of setting up one click deploys. This tutorial covers how to setup a git
+					postcommit hook that deploys on <code class="git">git push prod</code>, which is pretty simple
+					to get started with, but won&rsquo;t scale well once you start running multiple app servers. For alternatives,
+					you might have a look at <a href="http://docs.fabfile.org/en/1.4.3/index.html">Fabric</a> or <a
+						href="http://capistranorb.com/">Capistrano</a>.</p>
+
+				<h2 id="setup-the-git-repo-on-the-server">Setup the git repo on the server</h2>
+
+				<p>If you don&rsquo;t already have <code class="git">git</code> installed on the server, <code
+						class="git">ssh</code> in and do a</p>
+
+				<pre><code class="git">sudo apt-get install git</code></pre>
+
+				<p>Now we want to create a git user:</p>
+
+				<pre class="git"><code>sudo adduser \
+    --system \
+    --shell /bin/sh \
+    --gecos 'git version control' \
+    --group \
+    --disabled-password \
+    --home /var/git \
+    git
+</code></pre>
+
+				<p>And append your ssh public key to the git user&rsquo;s list of authorized keys located at <code
+						class="highlighter-rouge">/var/git/.ssh/authorized_keys
+					</code>, creating the file if necessary.</p>
+
+				<p>Now let&rsquo;s create the repository:</p>
+
+				<pre class="highlight"><code>cd /var/git
+sudo -u git mkdir &lt;repo-name&gt;.git
+cd &lt;repo-name&gt;.git
+sudo -u git git init --bare </code></pre>
+
+				<p>The repository here is bare so that it can accept pushes. See this <a
+						href="http://www.bitflop.com/document/111">discussion of bare vs. non-bare repos</a> if you are interested
+					in learning more.</p>
+
+				<h2 id="create-a-hook">Create a hook</h2>
+
+				<p>OK so now we want to create the script that will run after a <code class="highlighter-rouge">git push</code>
+					is received.</p>
+
+				<p>Create a file called <code class="highlighter-rouge">/var/git/&lt;repo-name&gt;.git/hooks/post-receive</code>
+					and give it these contents:</p>
+
+				<pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nb">export </span><span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/var/www/&lt;app-name&gt;/project/
+git checkout <span class="nt">-f</span></code></pre>
+
+				<p>The above assumes that your server is setup with <code
+						class="highlighter-rouge">/var/www/&lt;app-name&gt;/project/</code> as the location where your app server
+					will be looking for your code files.</p>
+
+				<p>Add execute permissions and make sure it is owned by git:</p>
+
+				<pre class="highlight"><code>sudo chmod u+x hooks/post-receive
+sudo chown git:git hooks/post-receive</code></pre>
+
+				<h2 id="handle-permissions">Handle permissions</h2>
+
+				<p>The post receive script will be run as git, so we need to make sure that the git user has permissions to
+					write to the <code class="highlighter-rouge">GIT_WORK_TREE</code>, and also that the server can read and write
+					from those directories. To handle this, lets make git a member of the nginx group, and then have the post
+					receive script touch up the file permissions after checkout.</p>
+
+				<pre class="highlight"><code>sudo usermod -a -G nginx $USER</code></pre>
+
+				<p>Then edit the script to look like this:</p>
+
+				<pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="c"># Checkout the repo.</span>
+<span class="nb">export </span><span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/var/www/&lt;app-name&gt;/project/
+git checkout <span class="nt">-f</span>
+
+<span class="c"># Fix up permissions.</span>
+<span class="nb">cd</span> /var/www/&lt;app-name&gt;<span class="p">;</span>
+chmod <span class="nt">-R</span> g+w project/<span class="k">*</span>
+chown <span class="nt">-R</span> git:nginx project/<span class="k">*</span>
+					</code></pre>
+
+				<h2 id="prepare-development-box">Prepare development box</h2>
+
+				<p>Now on your development machine, add the new remote repository and push to it:</p>
+
+				<pre class="highlight"><code>git remote add prod ssh://git@&lt;server&gt;/var/git/&lt;repo-name&gt;.git
+git push prod master
+					</code></pre>
+
+				<h2 id="other-deploy-tasks">Other deploy tasks</h2>
+
+				<p>Often there will be other tasks that have to happen during the deploy. Here is an example of another
+					post-receive hook script that I use for one of my Django projects. It collects the static files to prepare
+					them to be served via nginx, runs the database migrations, and installs any new python requirements.</p>
+
+					<pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="c"># Checkout the repo.</span>
+<span class="nb">export </span><span class="nv">GIT_WORK_TREE</span><span class="o">=</span>/var/www/&lt;app-name&gt;/project/
+git checkout <span class="nt">-f</span>
+
+<span class="c"># Fix up permissions.</span>
+<span class="nb">cd</span> <span class="nv">$GIT_WORK_TREE</span>
+chmod <span class="nt">-R</span> g+w <span class="k">*</span>py
+chown <span class="nt">-R</span> git:nginx <span class="k">*</span>py
+
+<span class="nb">source</span> ../env/bin/activate
+
+<span class="c"># Collect static files</span>
+./manage.py collectstatic <span class="nt">--noinput</span> <span class="nt">-v</span> 0
+
+<span class="c"># Handle DB Migrations</span>
+./manage.py syncdb <span class="nt">--migrate</span> <span class="nt">-v</span> 0
+
+<span class="c"># Update requirements</span>
+pip install <span class="nt">-q</span> <span class="nt">-r</span> requirements.txt
+
+deactivate
+						</code></pre>
+
+				<p>So there it is &ndash; a quick way to setup one touch deploys with git.</p>
+
+			</article>
+
+		</div>
+	</div>
+</div>
+
+
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+<script>hljs.highlightAll();</script> -->
+
+
+{% endblock %}

@@ -19,7 +19,7 @@
 				</div>
 			</div>
 
-			<!-- post articles here --> 
+			<!-- post articles here -->
 
 			<div id="recent" class="extraBox">
 				<h3 class="accent-header">Recent Articles</h3>
@@ -27,14 +27,28 @@
 					<li class="post category-Tips &amp; Tutorials ">
 						<div class="inside">
 
-							<p>No articles have been posted by the author. </p>
+							{% for post in postsinfo %}
+							<ul class="post-list">
+								<li class="post category-Tips &amp; Tutorials ">
+									<div class="inside">
+										<h2><a class="post-link" href="{{post.link}}">{{post.title}}</a></h2>
+										<div class="post-meta clearfix">
+											<i>by</i> <a href="{{ url_for('about') }}">Leeladhar Rao</a> {{post.date}}
+										</div>
+										<p>{{post.content}}</p>
+									</div>
+								</li>
+							</ul>
+
+							{% endfor %}
+
 
 						</div>
 					</li>
 
 				</ul>
 			</div>
-			<!-- End of articles-->   
+			<!-- End of articles-->
 
 		</div>
 	</div>

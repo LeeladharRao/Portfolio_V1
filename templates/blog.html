@@ -5,8 +5,32 @@
 
 {% block body %}
 
-<h4>This is the Blog</h4>
+<div id="main" class="clearfix">
+	<div id="content" class="clearfix">
+		<div id="post-section" class="post">
+			<div id="pageHead">
+				<h1 class="post-list-title">Archives</h1>
+			</div>
+
+			{% for post in postsinfo['post_data'] %}
+			<ul class="post-list">
+				<li class="post category-Tips &amp; Tutorials ">
+					<div class="inside">
+						<h2><a class="post-link" href="{{post.link}}">{{post.title}}</a></h2>
+						<div class="post-meta clearfix">
+							<i>by</i> <a href="{{ url_for('about') }}">Leeladhar Rao</a> {{post.date}}
+						</div>
+						<p>{{post.content}}</p>
+					</div>
+				</li>
+			</ul>
+
+			{% endfor %}
+
+		</div>
+	</div>
+</div>
+
 
 
 {% endblock %}
-

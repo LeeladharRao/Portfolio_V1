@@ -1,0 +1,11 @@
+{
+	"post_data": [
+		{
+			"title": "Deploy with ‘Git Push’",
+			"date": "February 8, 2018 ",
+			"content": "Single command deploys are awesome. When setting up a testing or production server, I always setup a script to deploy in a single command because it makes life easier and encourages frequent deploys.",
+			"link": "blog/deploy_with_git_push"
+		}
+		
+	]
+}
